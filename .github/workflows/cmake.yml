@@ -1,0 +1,36 @@
+name: CMake
+
+on:
+  push:
+    branches: [main]
+
+env:
+  BUILD_TYPE: Debug
+  TEST_EXE: PA01
+  INPUT_FILE: input/input01.txt
+  OUTPUT_FILE: test-highvalue.txt test-custom.txt test-bruteforce.txt
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+      - name: Execute Project
+        working-directory: ${{github.workspace}}/build
+        run: ${{github.workspace}}/build/${{env.TEST_EXE}} ${{env.INPUT_FILE}}
+
+      - name: Upload output files to GitHub so they can be reviewed
+        uses: actions/upload-artifact@v2
+        with:
+          name: project_output
+          path: ${{github.workspace}}/build/input
